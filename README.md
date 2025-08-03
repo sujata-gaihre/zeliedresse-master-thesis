@@ -18,7 +18,7 @@ pipeline used in the thesis.  Assuming the preprocessed dataset is
 available as a pickle file, the experiment can be repeated with:
 
 ```bash
-python reproduce_experiment.py --data path/to/data_v2_spon.pkl
+python reproduce_experiment.py --with_cluster --data path/to/data_v2_spon.pkl
 ```
 
 This will train the four models and report their test AUC and the true

@@ -67,7 +67,7 @@ def split_and_scale(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarra
 def train_models(X: np.ndarray, y: np.ndarray) -> Dict[str, object]:
     """Train all models used in the thesis."""
     models: Dict[str, object] = {
-        "Logistic Regression": LogisticRegression(max_iter=1000, random_state=8),
+        "Log. Regression": LogisticRegression(max_iter=1000, random_state=8),
         "Random Forest": RandomForestClassifier(random_state=8, n_jobs=-1),
         "Neural Network": MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=200, random_state=8),
     }
@@ -96,24 +96,46 @@ def evaluate(model, X: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
 def run_partitioned_experiment(df: pd.DataFrame, partition_col: str = "PARTITION") -> None:
     """Train and evaluate models for each data partition.
 
-    ``partition_col`` identifies the column containing partition labels. For
-    every unique partition value, the function trains models on the
-    corresponding subset of data (with the partition column removed) and
-    evaluates them on the matching test set.
+    At the end, aggregate evaluation results (AUC and TPR@10%FPR) across all partitions.
     """
 
     partitions = df[partition_col].unique()
+    combined_preds = {}  # model_name -> list of predicted probabilities
+    combined_labels = []  # true labels (same for all models)
+
     for partition in partitions:
         subset = df[df[partition_col] == partition].drop(columns=[partition_col])
         X_train, y_train, _, _, X_test, y_test = split_and_scale(subset)
         models = train_models(X_train, y_train)
 
         print(f"Partition {partition}")
-        print("Model\tAUC\tTPR at 10% FPR")
+        print("Model\t\tAUC\tTPR at 10% FPR")
         for name, model in models.items():
-            auc, tpr_at_10 = evaluate(model, X_test, y_test)
-            print(f"{name}\t{auc:.4f}\t{tpr_at_10:.2f}%")
+            prob = model.predict_proba(X_test)[:, 1]
+            auc = roc_auc_score(y_test, prob)
+            fpr, tpr, _ = roc_curve(y_test, prob)
+            tpr_at_10 = tpr[np.argmin(np.abs(fpr - 0.1))]
+
+            print(f"{name}\t{auc:.4f}\t{tpr_at_10 * 100:.2f}%")
+
+            if name not in combined_preds:
+                combined_preds[name] = []
+            combined_preds[name].extend(prob)
+
+        combined_labels.extend(y_test)
+
         print()
+
+    # Print combined results
+    print("Combined Evaluation (All Partitions)")
+    print("Model\tAUC\tTPR at 10% FPR")
+    y_all = np.array(combined_labels)
+    for name, prob_list in combined_preds.items():
+        prob = np.array(prob_list)
+        auc = roc_auc_score(y_all, prob)
+        fpr, tpr, _ = roc_curve(y_all, prob)
+        tpr_at_10 = tpr[np.argmin(np.abs(fpr - 0.1))]
+        print(f"{name}\t{auc:.4f}\t{tpr_at_10 * 100:.2f}%")
 
 
 def main() -> None:
@@ -138,7 +160,7 @@ def main() -> None:
         X_train, y_train, _, _, X_test, y_test = split_and_scale(df)
         models = train_models(X_train, y_train)
 
-        print("Model\tAUC\tTPR at 10% FPR")
+        print("Model\t\tAUC\tTPR at 10% FPR")
         for name, model in models.items():
             auc, tpr_at_10 = evaluate(model, X_test, y_test)
             print(f"{name}\t{auc:.4f}\t{tpr_at_10:.2f}%")
