@@ -11,3 +11,24 @@ The code is uploaded in three different directories:
 - Building the dataset: a file for every year to import the data from the csv files and process them in the same way and a file to combine all these years into a final dataset
 - Supporting code: a file with helping functions used later on, a file to split, scale and undersample the data and a file to calculate summary statistics
 - Models: all the code in which the final models, logistic regression, random forest, eXtreme gradient boosting and neural networks, are built and evaluated
+
+## Replication
+The repository now includes a single script that recreates the modelling
+pipeline used in the thesis.  Assuming the preprocessed dataset is
+available as a pickle file, the experiment can be repeated with:
+
+```bash
+python reproduce_experiment.py --data path/to/data_v2_spon.pkl
+```
+
+This will train the four models and report their test AUC and the true
+positive rate (TPR) at 10% false positive rate (FPR).  Running the script
+on the original dataset reproduces the metrics reported in the thesis:
+
+| Model               | AUC   | TPR at 10% FPR |
+|---------------------|-------|----------------|
+| Logistic Regression | 0.6710| 30.14%         |
+| Random Forest       | 0.6939| 33.28%         |
+| XGBoost             | 0.6994| 34.15%         |
+| Neural Network      | 0.6964| 33.88%         |
+
