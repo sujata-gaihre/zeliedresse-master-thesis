@@ -93,6 +93,29 @@ def evaluate(model, X: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
     return auc, tpr_at_10 * 100
 
 
+def run_partitioned_experiment(df: pd.DataFrame, partition_col: str = "PARTITION") -> None:
+    """Train and evaluate models for each data partition.
+
+    ``partition_col`` identifies the column containing partition labels. For
+    every unique partition value, the function trains models on the
+    corresponding subset of data (with the partition column removed) and
+    evaluates them on the matching test set.
+    """
+
+    partitions = df[partition_col].unique()
+    for partition in partitions:
+        subset = df[df[partition_col] == partition].drop(columns=[partition_col])
+        X_train, y_train, _, _, X_test, y_test = split_and_scale(subset)
+        models = train_models(X_train, y_train)
+
+        print(f"Partition {partition}")
+        print("Model\tAUC\tTPR at 10% FPR")
+        for name, model in models.items():
+            auc, tpr_at_10 = evaluate(model, X_test, y_test)
+            print(f"{name}\t{auc:.4f}\t{tpr_at_10:.2f}%")
+        print()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Reproduce thesis experiment")
     parser.add_argument(
@@ -101,17 +124,24 @@ def main() -> None:
         required=True,
         help="Path to preprocessed pickle file containing the data.",
     )
+    parser.add_argument(
+        "--with_cluster",
+        action="store_true",
+        help="Run experiment separately for each data partition.",
+    )
     args = parser.parse_args()
 
     df = load_dataset(args.data)
-    X_train, y_train, _, _, X_test, y_test = split_and_scale(df)
+    if args.with_cluster:
+        run_partitioned_experiment(df)
+    else:
+        X_train, y_train, _, _, X_test, y_test = split_and_scale(df)
+        models = train_models(X_train, y_train)
 
-    models = train_models(X_train, y_train)
-
-    print("Model\tAUC\tTPR at 10% FPR")
-    for name, model in models.items():
-        auc, tpr_at_10 = evaluate(model, X_test, y_test)
-        print(f"{name}\t{auc:.4f}\t{tpr_at_10:.2f}%")
+        print("Model\tAUC\tTPR at 10% FPR")
+        for name, model in models.items():
+            auc, tpr_at_10 = evaluate(model, X_test, y_test)
+            print(f"{name}\t{auc:.4f}\t{tpr_at_10:.2f}%")
 
 
 if __name__ == "__main__":
