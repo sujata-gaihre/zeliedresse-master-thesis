@@ -17,18 +17,18 @@ cols_to_use = ["mager", "mbstate_rec", "restatus", "mrace6", "mhisp_r",
                "precare","wic","cig_0","cig_1","cig_2", "cig_rec", 
                "m_ht_in","bmi","rf_pdiab","rf_gdiab","rf_phype",
                "rf_ghype","rf_ehype","rf_ppterm","rf_inftr","rf_fedrg","rf_artec",
-               "rf_cesar","rf_cesarn","ip_gon","ip_syph","ip_chlam","ip_hepatb",
-               "ip_hepatc", "oegest_r10", "sex", "pwgt_r",
+               "rf_cesar","rf_cesarn","ip_gon","ip_syph","ip_chlam","f_ip_hepatb",
+               "f_ip_hepatc", "oegest_r10", "sex", "pwgt_r",
                "dmar", "mar_p", "pay_rec", "fagecomb", "ld_indl", "me_rout", "me_trial"]
 
 
-filename = "/Users/zeliedresse/Documents/Thesis Data/natl2018us.csv"
+filename = "Data/natl2018us.csv"
 
 df = pd.read_csv(filename,sep = ",", usecols = cols_to_use, low_memory=False)
 #%% Rename columns so they are consistent across years
 df.columns = df.columns.str.upper()
-df = df.rename({'M_HT_IN': 'M_Ht_In', 'PWGT_R': 'PWgt_R', 'IP_HEPATB': 'IP_HEPB',
-                'IP_HEPATC': 'IP_HEPC', 'OEGEST_R10': 'OEGest_R10'}, axis='columns')
+df = df.rename({'M_HT_IN': 'M_Ht_In', 'PWGT_R': 'PWgt_R', 'F_IP_HEPATB': 'IP_HEPB',
+                'F_IP_HEPATC': 'IP_HEPC', 'OEGEST_R10': 'OEGest_R10'}, axis='columns')
 
 #%% Drop empty rows
 nan_values = df[df.isna().all(axis=1)]      
@@ -82,7 +82,7 @@ df["PWgt_R"] = df["PWgt_R"].replace({999:np.NaN})
 #%% get table with NA
 missing = df.isna().sum()
 
-with pd.ExcelWriter('/Users/zeliedresse/missing_value.xlsx', engine='openpyxl',mode='a') as writer:   
+with pd.ExcelWriter('missing_value.xlsx', engine='openpyxl',mode='a') as writer:   
     missing.to_excel(writer, sheet_name='2018')
     
 #%% Delete all missing

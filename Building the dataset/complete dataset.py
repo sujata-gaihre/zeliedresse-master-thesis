@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 import sys
 
 #%% import different years
-df_2020 = pd.read_pickle("/Users/zeliedresse/Documents/Thesis Data/2020_v2.pkl")
-df_2019 = pd.read_pickle("/Users/zeliedresse/Documents/Thesis Data/2019_final_v2.pkl")
-df_2018 = pd.read_pickle("/Users/zeliedresse/Documents/Thesis Data/2018_v2.pkl")
-df_2017 = pd.read_pickle("/Users/zeliedresse/Documents/Thesis Data/2017_v2.pkl")
-df_2016 = pd.read_pickle("/Users/zeliedresse/Documents/Thesis Data/2016_v2.pkl")
+df_2020 = pd.read_pickle("Data/2020_v2.pkl")
+df_2019 = pd.read_pickle("Data/2019_final_v2.pkl")
+df_2018 = pd.read_pickle("Data/2018_v2.pkl")
+df_2017 = pd.read_pickle("Data/2017_v2.pkl")
+df_2016 = pd.read_pickle("Data/2016_v2.pkl")
 
 #%% drop index columns
 df_2020.drop(columns = ["level_0", "index"], inplace = True)
@@ -98,7 +98,7 @@ df["ME_ROUT"] = pd.to_numeric(df["ME_ROUT"])
 df_vag_spon = df[(df["ME_ROUT"] != 4) & (df["LD_INDL"] == "N")]
 df_caes = df[(df["ME_ROUT"] == 4) & (df["LD_INDL"] == "N") & (df["ME_TRIAL"] == "Y")]
 
-df_spon = df_vag_spon.append(df_caes)
+df_spon = pd.concat([df_vag_spon, df_caes], ignore_index=True)
 #%%
-df_spon.to_pickle("/Users/zeliedresse/Documents/Thesis Data/data_v2_spon.pkl")
+df_spon.to_pickle("Data/data_v2_spon.pkl")
 

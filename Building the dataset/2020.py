@@ -11,25 +11,31 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 #%% Import relevant columns from csv file
-cols_to_use = ["MAGER", "MBSTATE_REC", "RESTATUS", "MRACE6", "MHISP_R", 
-               "MEDUC", "PRIORLIVE", "PRIORDEAD","PRIORTERM",  "ILLB_R11",
-               "PRECARE","WIC","CIG_0","CIG_1","CIG_2", "CIG_REC",
-               "BMI","RF_PDIAB","RF_GDIAB","RF_PHYPE",
-               "RF_GHYPE","RF_EHYPE","RF_INFTR","RF_FEDRG",
-               "RF_ARTEC","RF_CESAR","RF_CESARN", "OEGest_R10", "SEX",
-               'IP_HEPB', 'IP_HEPC', 'IP_SYPH', 'RF_PPTERM', 'IP_CHLAM','IP_GON', 
-               "DMAR", "MAR_P", "PAY_REC", "FAGECOMB", "LD_INDL"]
+cols_to_use = ["mager", "mbstate_rec", "restatus", "mrace6", "mhisp_r", 
+               "meduc", "priorlive", "priordead","priorterm",  "illb_r11",
+               "precare","wic","cig_0","cig_1","cig_2", "cig_rec",
+               "bmi","rf_pdiab","rf_gdiab","rf_phype",
+               "rf_ghype","rf_ehype","rf_inftr","rf_fedrg",
+               "rf_artec","rf_cesar","rf_cesarn", "oegest_r10", "sex",
+               'ip_hepb', 'ip_hepc', 'ip_syph', 'rf_ppterm', 'ip_chlam','ip_gon', 
+               "dmar", "mar_p", "pay_rec", "fagecomb", "ld_indl"]
 
 VAR = ['M_Ht_In', 'PWgt_R', "ME_ROUT", "ME_TRIAL"]
-filename = "/Users/zeliedresse/Documents/Thesis Data/birth_2020_nber_us.csv"
+filename = "Data/birth_2020_nber_us.csv"
 
-df = pd.read_csv(filename,sep = ",", usecols = cols_to_use, low_memory=False)
+df = pd.read_csv(filename, sep=",", usecols=cols_to_use, low_memory=False)
+
+# Normalize all column names to lowercase for consistency
+df.columns = df.columns.str.upper()
+df.rename(columns={"OEGEST_R10": "OEGest_R10", "M_HT_IN": "M_Ht_In"}, inplace=True)
+
+
 #%% Get other variables from txt file
 """ CSV file on NBER website is missing certain variables,
 retrieving them here from the txt file
 """
 
-with open("/Users/zeliedresse/Documents/Thesis Data/Nat2020PublicUS.c20210506.r20210812.txt") as f:
+with open("Data/Nat2020PublicUS.c20210506.r20210812.txt") as f:
     contents = f.readlines()
 
 data = []

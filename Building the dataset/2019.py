@@ -20,17 +20,21 @@ cols_to_use = ["MAGER", "MBSTATE_REC", "RESTATUS", "MRACE6", "MHISP_R",
                "RF_GHYPE","RF_EHYPE","RF_INFTR","RF_FEDRG",
                "RF_ARTEC","RF_CESAR","RF_CESARN", "OEGest_R10", "SEX",
                "DMAR", "MAR_P", "PAY_REC", "FAGECOMB", "LD_INDL"]
+cols_to_use = [col.lower() for col in cols_to_use]
 
 VAR = ['IP_HEPB', 'IP_HEPC', 'IP_SYPH', 'RF_PPTERM', 'IP_CHLAM', 'PWgt_R', 'IP_GON', "ME_ROUT", "ME_TRIAL"]
 
-filename = "/Users/zeliedresse/Documents/Thesis Data/birth_2019_nber_us.csv"
+filename = "Data/birth_2019_nber_us.csv"
 df = pd.read_csv(filename,sep = ",", usecols = cols_to_use, low_memory=False)
+# make all columns uppercase
+df.columns = df.columns.str.upper()
+df.rename(columns={"OEGEST_R10": "OEGest_R10", "M_HT_IN": "M_Ht_In"}, inplace=True)
 
 #%% Get other variables from txt file
 """ CSV file on NBER website is missing certain variables,
 retrieving them here from the txt file
 """
-with open("/Users/zeliedresse/Documents/Thesis Data/Nat2019PublicUS.c20200506.r20200915.txt") as f:
+with open("Data/Nat2019PublicUS.c20200506.r20200915.txt") as f:
     contents = f.readlines()
     
 data = []
@@ -142,7 +146,7 @@ df["PWgt_R"] = df["PWgt_R"].replace({999:np.NaN})
 #%% get table with NA
 missing = df.isna().sum()
 
-with pd.ExcelWriter('/Users/zeliedresse/missing_value.xlsx', engine='openpyxl',mode='a') as writer:   
+with pd.ExcelWriter('missing_value.xlsx', engine='openpyxl',mode='a') as writer:   
     missing.to_excel(writer, sheet_name='2019')
 
 #%% Delete all missing

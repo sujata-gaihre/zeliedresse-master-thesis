@@ -23,7 +23,7 @@ cols_to_use = ["mager", "mbstate_rec", "restatus", "mrace6", "mhisp_r",
                "dmar", "mar_p", "pay_rec", "fagecomb", "ld_indl", "me_rout", "me_trial"]
 
 
-filename = "/Users/zeliedresse/Documents/Thesis Data/natl2017.csv"
+filename = "Data/natl2017.csv"
 
 df = pd.read_csv(filename,sep = ",", usecols = cols_to_use, low_memory=False)
 #%% Rename columns so they are consistent across years
@@ -82,7 +82,7 @@ df["PWgt_R"] = df["PWgt_R"].replace({999:np.NaN})
 #%% get table with NA
 missing = df.isna().sum()
 
-with pd.ExcelWriter('/Users/zeliedresse/missing_value.xlsx', engine='openpyxl',mode='a') as writer:   
+with pd.ExcelWriter('missing_value.xlsx', engine='openpyxl',mode='a') as writer:   
     missing.to_excel(writer, sheet_name='2017')
     
 #%% Delete all missing
