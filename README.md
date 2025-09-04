@@ -25,6 +25,35 @@ This will train the four models and report their test AUC and the true
 positive rate (TPR) at 10% false positive rate (FPR).  Running the script
 on the original dataset reproduces the metrics reported in the thesis:
 
+
+## Alternative Data Loading
+
+In addition to using the Hugging Face `datasets` library, the repository includes a script
+`reproduce_experiment_import_data.py` that can be used as an alternative to import the
+Natality Birth data directly from CSV files.
+
+```bash
+python3 reproduce_experiment_import_data.py
+```
+
+For example, instead of calling:
+
+```python
+from datasets import load_dataset
+
+def load_dataset_from_huggingface(sample_frac: float = 0.1) -> pd.DataFrame:
+    dataset = load_dataset("SushantGautam/nvss-birth-records-usa-2016-2020")
+    df = dataset["train"].to_pandas()
+
+    # sample only a fraction of the data (default = 10%)
+    df = df.sample(frac=sample_frac, random_state=8).reset_index(drop=True)
+
+    return df
+
+
+
+
+
 | Model               | AUC   | TPR at 10% FPR |
 |---------------------|-------|----------------|
 | Logistic Regression | 0.6710| 30.14%         |
