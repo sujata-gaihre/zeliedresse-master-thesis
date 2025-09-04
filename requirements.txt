@@ -1,0 +1,9 @@
+# Gradient boosting libraries
+xgboost
+lightgbm
+catboost
+numpy
+pandas
+scikit-learn
+imbalanced-learn
+datasets
